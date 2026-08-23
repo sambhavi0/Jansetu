@@ -9,9 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY requirements.txt .
-# setuptools/wheel first — openai-whisper's build needs pkg_resources (from
-# setuptools), which recent pip/base images don't include by default.
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# openai-whisper's old build script needs pkg_resources, which recent
+# setuptools versions (81+) removed entirely — pin to a version that still has it.
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir "setuptools<81" wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
