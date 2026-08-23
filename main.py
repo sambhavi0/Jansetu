@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 
 from bson import ObjectId
@@ -27,6 +28,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Ensure the static dir exists — git doesn't track empty folders, so this
+# won't exist on a fresh deploy until ElevenLabs TTS writes the first file.
+os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
