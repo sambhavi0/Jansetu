@@ -8,12 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements.txt requirements-whisper.txt ./
 # openai-whisper's old build script needs pkg_resources, which recent
-# setuptools versions (81+) removed entirely — pin to a version that still has it.
+# setuptools versions (81+) removed entirely.
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir "setuptools<81" wheel
+
+# Install everything except whisper normally.
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install whisper with build isolation OFF — otherwise pip creates a fresh
+# throwaway environment for the build step that ignores the pinned setuptools
+# above and pulls its own (too new) copy from PyPI every time.
+RUN pip install --no-cache-dir --no-build-isolation -r requirements-whisper.txt
 
 COPY . .
 
